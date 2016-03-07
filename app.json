@@ -1,0 +1,161 @@
+{
+    "id": "com.maplin",
+    "version": "0.0.1",
+    "compatibility": "0.x || 1.x",
+    "category": ["appliances", "lights"],
+    "name": {
+        "en": "Maplin E-Gadget",
+		"nl": "Maplin E-Gadget"
+    },
+    "description": {
+		"en": "Give Homey the ability to control your Maplin E-Gadget devices",
+		"nl": "Give Homey the ability to control your Maplin E-Gadget devices"
+    },
+    "author": {
+        "name" : "Andy Wilde"
+    },
+    "images": {
+		"large": "./assets/images/large.jpg",
+		"small": "./assets/images/small.jpg"
+    },
+    "permissions": [
+	    "homey:wireless:433"
+    ],
+    "drivers": [
+	    {
+		    "id": "mp01",
+		    "name": {
+				"en": "Handheld Remote",
+			    "nl": "Handheld Remote"
+		    },
+		    "images": {
+				"large": "../drivers/mp01/assets/images/large.png",
+				"small": "../drivers/mp01/assets/images/small.png"
+		    },
+		    "class": "remote",
+		    "capabilities": ["onoff"],
+	    "pair": [
+				{
+			    	"id": "start"
+			    },
+				{
+			    	"id": "remote1",
+			    	"navigation": {
+				    	"next": "remote_done",
+				    	"prev": "start"
+			    	}
+			    },
+				{
+			    	"id": "remote_done"
+			    }
+		    ]
+		},
+
+		{
+		    "id": "mp02",
+		    "name": {
+				"en": "Plug-in On/Off",
+			    "nl": "Plug-in On/Off"
+		    },
+		    "images": {
+				"large": "../drivers/mp02/assets/images/large.png",
+				"small": "../drivers/mp02/assets/images/small.png"
+		    },
+		    "class": "scoket",
+		    "capabilities": [ "onoff" ],
+	    "pair": [
+				{
+			    	"id": "start"
+			    },
+			    {
+			    	"id": "imitate1",
+			    	"navigation": {
+				    	"prev": "start"
+			    	}
+			    },
+			    {
+			    	"id": "generate2",
+			    	"navigation": {
+						"next": "done",
+				    	"prev": "start"
+			    	}
+			    },
+				{
+			    	"id": "done"
+			    }
+		    ]
+		}
+    ],
+	"flow": {
+	    "triggers": [
+	        {
+	            "id": "mp01remoteOn",
+	            "title": {
+	                "en": "On is pressed on your remote"
+	            },
+	            "args": [
+	                {
+	                    "name": "device",
+	                    "type": "device",
+	                    "filter": "driver_id=lw100",
+	                    "placeholder": { "en": "Which remote?", "nl": "Welke afstandbediening?" }
+	                },
+	                {
+	                    "name": "channel",
+	                    "type": "dropdown",
+	                    "values": 	[ 
+		                    { "id": "1", "label": { "en": "Channel: a" } },
+		                    { "id": "2", "label": { "en": "Channel: b" } },
+		                    { "id": "3", "label": { "en": "Channel: c" } }, 
+		                    { "id": "4", "label": { "en": "Channel: d" } }  
+	                    ]
+	                },
+	                {
+	                    "name": "unit",
+	                    "type": "dropdown",
+	                    "values": 	[ 
+		                    { "id": "1", "label": { "en": "Button: 1" } },
+		                    { "id": "2", "label": { "en": "Button: 2" } },
+		                    { "id": "3", "label": { "en": "Button: 3" } }, 
+		                    { "id": "4", "label": { "en": "Button: 4" } }
+	                    ]
+	                }
+            	]
+	        },
+	        {
+	            "id": "mp01remoteOff",
+	            "title": {
+	                "en": "Off is pressed on your remote"
+	            },
+	            "args": [
+	                {
+	                    "name": "device",
+	                    "type": "device",
+	                    "filter": "driver_id=lw100",
+	                    "placeholder": { "en": "Which remote?", "nl": "Welke afstandbediening?" }
+	                },
+	                {
+	                    "name": "channel",
+	                    "type": "dropdown",
+	                    "values": 	[ 
+		                    { "id": "1", "label": { "en": "Channel: a" } },
+		                    { "id": "2", "label": { "en": "Channel: b" } },
+		                    { "id": "3", "label": { "en": "Channel: c" } }, 
+		                    { "id": "4", "label": { "en": "Channel: d" } }  
+	                    ]
+	                },
+	                {
+	                    "name": "unit",
+	                    "type": "dropdown",
+	                    "values": 	[ 
+		                    { "id": "1", "label": { "en": "Button: 1" } },
+		                    { "id": "2", "label": { "en": "Button: 2" } },
+		                    { "id": "3", "label": { "en": "Button: 3" } }, 
+		                    { "id": "4", "label": { "en": "Button: 4" } }, 
+	                    ]
+	                }
+            	]
+	        }
+		]
+	}		
+}
