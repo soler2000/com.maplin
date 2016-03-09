@@ -23,28 +23,39 @@ function createDriver(driver) {
 					console.log('Maplin: Init')
 				
 					
+					/*words: [
+							[short,long,long,short,  	short,long,long,short,		short,long,long,short,		short,long,long,short],
+							[short,long,long,short,  	short,long,long,short,		short,long,long,short,		short,long,short,long],
+							[short,long,long,short,  	short,long,long,short,		short,long,short,long,		short,long,long,short],
+							[short,long,long,short,  	short,long,short,long,		short,long,long,short,		short,long,long,short],
+							[short,long,short,long,  	short,long,long,short,		short,long,long,short,		short,long,long,short],
+							],
+					*/
+					
+					
+					
+					
+					
+					
 					initFlag = 0;
 					var Signal = Homey.wireless('433').Signal;
-					var short =425;	//orginal 293	14-15 samples at 48khz				
+					var short =350;	//orginal 293	14-15 samples at 48khz				
 					var long =1350;	//orginal 280  14-15 samples at 48khz
 					signal = new Signal(
 						{   
 						sof: [], //Start of frame,Starting 1 added to words due to some starting words beginning on a low
-   						eof: [short], //high1,  End of frame,Ending 1 added to words due to some ending words ending on a low
+   						eof: [short], //  End of frame,Ending 1 added to words due to some ending words ending on a low
 						words: [
-							[short,long,short,long,  	short,long,long,short,		short,long,long,short,		short,long,long,short],// 0x0	1+11110110
-							[short,long,short,long,  	short,long,long,short,		short,long,long,short,		short,long,long,short],// 0x0
-							[short,long,short,long,  	short,long,long,short,		short,long,long,short,		short,long,long,short],// 0x0
-							[short,long,short,long,  	short,long,long,short,		short,long,long,short,		short,long,long,short],// 0x0
-							[short,long,short,long,  	short,long,long,short,		short,long,long,short,		short,long,long,short],// 0x0
+							[short,long,long,short],
+							[short,long,short,long]
 							],
-						interval: 13600, 	//Time between repetitions,  this is the time between the a complete message and the start of the next
-						repetitions: 6,   	
+						interval: 13500, 	//Time between repetitions,  this is the time between the a complete message and the start of the next
+						repetitions: 3,   	
 						//This is the trigger count for detecting a signal,, this may also be the number of times a transmition takes place
 						//basic remotes send the whole message 6 times, while the wifilink sends this 25 time
-						sensitivity: 0.8, 
-						minimalLength: 3,
-                    	maximalLength: 3
+						sensitivity: 0.7, 
+						minimalLength: 12,
+                    	maximalLength: 12
 						});
 					
 						
@@ -62,7 +73,7 @@ function createDriver(driver) {
 						signal.on('payload', function(payload, first)
 							{
 							//should prevent boucing, but need dim value therefore used alternative method
-							 //if(!first)return;
+							 if(!first)return;
 			
 							//Convert received array to usable data
 							var rxData = parseRXData(payload); 
@@ -345,42 +356,24 @@ function createDriver(driver) {
 
 
 function ManageIncomingRX(self, rxData){
-	// if message was the same no action
-	// if not the action
-	
-	
-	var devices = getDeviceByEachtransID(rxData);
+	var devices = getDeviceById(rxData);
+	if (devices != null){
 					
-	devices.forEach(function(device){
-		
-		console.log('*****************Pay load received - Maplin****************');
-		console.log(displayTime());
+	  devices.forEach(function(device){
+		  console.log('*****************Pay load received - Maplin****************');
+		  console.log(displayTime());
+		  console.log('New message:command', rxData.command, 
+							  ' unit:',rxData.unit ,  
+							  ' Cmd:', rxData.Command);
 	
-	
-		//Homey.log('New message, taking action');	
-		console.log('New message:command', rxData.command, 
-							' unit:',rxData.unit ,  
-							' Cmd:', rxData.Command);
-
-
-				
-		LastRX = rxData;
-			
-		
-		updateDeviceOnOff(self, device, rxData.onoff);					
-		flowselection(device, LastRX);
-				
-		lastTXMessageID = device.id;
-			
-			
-		//clears the last value after 2 seconds
-		setTimeout(function(){lastTXMessageID =''; }, 2000);
-		
-		
-	});
-	
-	
-
+		  LastRX = rxData;	  
+		  updateDeviceOnOff(self, device, rxData.onoff);					
+		  flowselection(device, LastRX);
+		  lastTXMessageID = device.id;
+		  //clears the last value after 2 seconds
+		  setTimeout(function(){lastTXMessageID =''; }, 2000); 
+	  });
+	}	
 }
 
 
@@ -532,35 +525,94 @@ Homey.manager('flow').on('trigger.mp01remoteOff', function( callback, args ){
 function parseRXData(data) {
 
 
-	console.log('Parse data', data);
+	var valid = true;
 
 	if (data != undefined) {
-		var channel = data[0];
-		var unit = data[1];
-		var Command = data[2];
 		
 		
-		
-		var onoff = false;
-		
-	if(Command == "5")
-		{
-		//Turn On
-		onoff = true;
+		if ((data[0] + data[1] + data[2] + data[3]) !=1)
+		{valid =false;
+		}else{
+		var channel = data[0].toString() + data[1].toString() + data[2].toString() + data[3].toString()
+		channel = parseInt(channel, 2);
+		switch (channel){
+			case 1:
+				channel =4;
+				break;
+			case 2:
+				channel =3;
+				break;
+			case 4:
+				channel =2;
+				break;
+			case 8:
+				channel =1;
+				break;
+			default: 
+				valid =false;
 		}
-	else
-		{
-		//Turn Off
-		onoff = false;
+		
+		}
+		
+		
+		if ((data[4] + data[5] + data[6] + data[7]) !=1)
+		{valid =false;
+		}else{
+			var unit = data[4].toString() + data[5].toString() + data[6].toString() + data[7].toString()
+			unit = parseInt(unit, 2);
+			switch (unit){
+				case 1:
+					unit =4;
+					break;
+				case 2:
+					unit =3;
+					break;
+				case 4:
+					unit =2;
+					break;
+				case 8:
+					unit =1;
+					break;
+				default: 
+        			valid =false;
+			}
+		
+		}
+		
+		
+		
+		var Command = data[8]+data[9]+data[10]+data[11];	
+		if (Command > 1){
+			valid = false;
 		}
 	
-	return { 
-		channel 				: channel,
-		unit 				: unit,
-		Command  			: Command,
-		onoff    			: onoff
-	};
-}}
+		
+		if(valid){
+			if (Command == 1){Command =0;}else{Command =1;}
+			console.log('Parse data Ch:', channel, 'unit:', unit, 'command:', Command);
+		
+			var onoff = false;
+		
+			if(Command == 1){
+				//Turn On
+				onoff = true;
+				}
+			else{
+				//Turn Off
+				onoff = false;
+			}
+	
+			return { 
+				channel 				: channel,
+				unit 				: unit,
+				Command  			: Command,
+				onoff    			: onoff
+			};
+		
+		}
+		
+	}
+}
 
 
 function dec2bin(dec){

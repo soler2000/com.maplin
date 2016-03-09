@@ -50,7 +50,6 @@
 			    }
 		    ]
 		},
-
 		{
 		    "id": "mp02",
 		    "name": {
@@ -97,7 +96,7 @@
 	                {
 	                    "name": "device",
 	                    "type": "device",
-	                    "filter": "driver_id=lw100",
+	                    "filter": "driver_id=mp01",
 	                    "placeholder": { "en": "Which remote?", "nl": "Welke afstandbediening?" }
 	                },
 	                {
@@ -131,7 +130,7 @@
 	                {
 	                    "name": "device",
 	                    "type": "device",
-	                    "filter": "driver_id=lw100",
+	                    "filter": "driver_id=mp01",
 	                    "placeholder": { "en": "Which remote?", "nl": "Welke afstandbediening?" }
 	                },
 	                {
@@ -151,7 +150,7 @@
 		                    { "id": "1", "label": { "en": "Button: 1" } },
 		                    { "id": "2", "label": { "en": "Button: 2" } },
 		                    { "id": "3", "label": { "en": "Button: 3" } }, 
-		                    { "id": "4", "label": { "en": "Button: 4" } }, 
+		                    { "id": "4", "label": { "en": "Button: 4" } }
 	                    ]
 	                }
             	]
