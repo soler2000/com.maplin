@@ -23,24 +23,11 @@ function createDriver(driver) {
 					console.log('Maplin: Init')
 				
 					
-					/*words: [
-							[short,long,long,short,  	short,long,long,short,		short,long,long,short,		short,long,long,short],
-							[short,long,long,short,  	short,long,long,short,		short,long,long,short,		short,long,short,long],
-							[short,long,long,short,  	short,long,long,short,		short,long,short,long,		short,long,long,short],
-							[short,long,long,short,  	short,long,short,long,		short,long,long,short,		short,long,long,short],
-							[short,long,short,long,  	short,long,long,short,		short,long,long,short,		short,long,long,short],
-							],
-					*/
-					
-					
-					
-					
-					
 					
 					initFlag = 0;
 					var Signal = Homey.wireless('433').Signal;
-					var short =350;	//orginal 293	14-15 samples at 48khz				
-					var long =1350;	//orginal 280  14-15 samples at 48khz
+					var short =350;	//	14-15 samples at 48khz				
+					var long =1350;	//  14-15 samples at 48khz
 					signal = new Signal(
 						{   
 						sof: [], //Start of frame,Starting 1 added to words due to some starting words beginning on a low
@@ -50,9 +37,7 @@ function createDriver(driver) {
 							[short,long,short,long]
 							],
 						interval: 13500, 	//Time between repetitions,  this is the time between the a complete message and the start of the next
-						repetitions: 3,   	
-						//This is the trigger count for detecting a signal,, this may also be the number of times a transmition takes place
-						//basic remotes send the whole message 6 times, while the wifilink sends this 25 time
+						repetitions: 8, //number of transmission
 						sensitivity: 0.7, 
 						minimalLength: 12,
                     	maximalLength: 12
@@ -140,21 +125,24 @@ function createDriver(driver) {
 						}	
 					address = bitArrayToString(address);
 				
-					var dim = 1;
-				
+									
 				tempdata = 
 					{
 					address: address,
-					channel    	: channel,
-					unit   		: unit,
-					command		: command,
+					channel    	: data.channel,
+					unit   		: data.unit,
 					onoff  		: true,
 					}	
 				//console.log('Data in Tempdata',tempdata);
 			
 				sendOnOff(tempdata, true);
 				socket.emit('datasent');
-				callback();
+				
+				///maybe need to try
+				//*******************************************************************************************
+				callback(null, tempdata.onoff);
+				//*******************************************************************************************
+				//callback();
 			});
 			
 	
@@ -170,53 +158,48 @@ function createDriver(driver) {
 					
 					if(!first)return;
 			        var rxData = parseRXData(payload);
-					
 				
-			        if(rxData.transID == tempdata.transID){
+					if((rxData.channel > 0)){
+				
+						console.log('No RXdata');
+					}else{
+						console.log('Channel in Remote Testing', rxData.channel);
+			       
 						if(rxData.onoff){
 							socket.emit('received_on'); //Send signal to frontend
 						}else{
 							socket.emit('received_off'); //Send signal to frontend
 						}
+					
 					}
 				});
 				callback(null, tempdata.onoff);
 			});
 			
 			
+
 			//Testing of Remote
-			socket.on('test_device_pir', function( data, callback ){
-				//console.log('test device pir at ',displayTime());
-				signal.on('payload', function(payload, first){
-					//console.log('test device pir- payload recieved ',displayTime());
-					
-					if(!first)return;
-			        var rxData = parseRXData(payload);
-					
-					//console.log('rxData.transID',rxData.transID);
-					//console.log('tempdata.transID)',tempdata.transID);
+			socket.on('plugData', function( data, callback )
+				{
+					console.log('Socket data recieved',data);
 					
 					
-			        if(rxData.transID == tempdata.transID){
-						if(rxData.onoff){
-							socket.emit('received_on'); //Send signal to frontend
-						}else{
-							socket.emit('received_off'); //Send signal to frontend
-						}
-					}
+					callback(null, data);
+				
+				
+				
 				});
-				callback(null, tempdata.onoff);
-			});
-			
-			
-			
-			
-						
+				
+				
+				
+				
+				
+				
 			//Testing of Remote
 			socket.on('remote', function( data, callback )
 				{
 				//console.log('remote socket at ',displayTime());
-					signal.once('payload', function(payload, first)
+					signal.on('payload', function(payload, first)
 						{
 							//console.log('remote payload at ',displayTime());
 							if(!first)return;
@@ -233,21 +216,28 @@ function createDriver(driver) {
 								}	
 							address = bitArrayToString(address);
 							
-							tempdata = 
+							if((rxData.channel > 0)){
+								console.log('No RXdata');
+								
+								}else
 								{
-								address		: address,
-								channel    	: rxData.channel,
-								unit   		: rxData.unit,
-								command		: rxData.command,
-								onoff  	   	: rxData.onoff,
-								}		
-							console.log('Trans ID ',rxData.transID);
-							console.log('Trans ID ',rxData.transID1, rxData.transID2, rxData.transID3, rxData.transID4, rxData.transID5);
+									console.log('RXdata has length' , rxData.length);
+									console.log('Channel in Remote Testing', rxData.channel);
+									tempdata = 
+										{
+										address		: address,
+										channel    	: rxData.channel,
+										unit   		: rxData.unit,
+										command		: rxData.command,
+										onoff  	   	: rxData.onoff,
+										}		
+								
+									console.log('Temp Data stored at',displayTime());
+									socket.emit('remote_found');
+									callback(null, tempdata.onoff);
+								}
 							
-							console.log('Temp Data stored at',displayTime());
-							socket.emit('remote_found');
-							callback(null, tempdata.onoff);
-						});
+							});
 						
 		
 					
@@ -297,11 +287,11 @@ function createDriver(driver) {
 						onoff = false;
 						}
 					sendOnOff(tempdata, onoff);
-					var devices = getDeviceByID(tempdata);
+					var devices = getDeviceById(tempdata);
 					
-					devices.forEach(function(device){
-						updateDeviceOnOff(self, device, onoff)
-					});	
+					//devices.forEach(function(device){
+						updateDeviceOnOff(self, tempdata, onoff)
+					//});	
 						
 					callback();
 				});
@@ -326,7 +316,7 @@ function createDriver(driver) {
 						id       	: id,
 						address  	: tempdata.address,
 						channel   	: tempdata.channel,
-						unit   	: tempdata.unit,
+						unit   		: tempdata.unit,
 						onoff    	: false,
 						driver   	: driver,
 						});
@@ -362,7 +352,7 @@ function ManageIncomingRX(self, rxData){
 	  devices.forEach(function(device){
 		  console.log('*****************Pay load received - Maplin****************');
 		  console.log(displayTime());
-		  console.log('New message:command', rxData.command, 
+		  console.log('New message:command', rxData.Command, 
 							  ' unit:',rxData.unit ,  
 							  ' Cmd:', rxData.Command);
 	
@@ -524,7 +514,7 @@ Homey.manager('flow').on('trigger.mp01remoteOff', function( callback, args ){
 
 function parseRXData(data) {
 
-
+console.log('RXdata Recieved');
 	var valid = true;
 
 	if (data != undefined) {
@@ -586,12 +576,13 @@ function parseRXData(data) {
 			valid = false;
 		}
 	
-		
+		var onoff = false;
+		ß
 		if(valid){
 			if (Command == 1){Command =0;}else{Command =1;}
 			console.log('Parse data Ch:', channel, 'unit:', unit, 'command:', Command);
 		
-			var onoff = false;
+			
 		
 			if(Command == 1){
 				//Turn On
@@ -602,14 +593,21 @@ function parseRXData(data) {
 				onoff = false;
 			}
 	
-			return { 
-				channel 				: channel,
-				unit 				: unit,
-				Command  			: Command,
-				onoff    			: onoff
-			};
+	
 		
+		}else{
+			channel 	=0;
+			unit 	=0;
+			Command =0;		
+			onoff   = false;		
 		}
+		console.log('RXdata',channel, unit, Command);
+		return { 
+			channel 				: channel,
+			unit 				: unit,
+			Command  			: Command,
+			onoff    			: onoff
+			};
 		
 	}
 }

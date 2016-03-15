@@ -1,26 +1,192 @@
-<script type="text/javascript">
+
+<script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="/manager/webserver/assets/js/jquery.js"></script>
+
+<script src="./rotarySwitch/jquery.rotaryswitch.js"></script>
+<link href="./rotarySwitch/jquery.rotaryswitch.css" rel="stylesheet">
+<link href="./css/main.css" rel="stylesheet">
+
+
+<center>
+  <p><img src="../assets/images/large.png" width="300" height="300" alt=""/></p>
+ 
+
+<div>
+	<div style="float:left;width:45%;align="center";" >
+	  <label id="lblchannel">Channel Selector</label>
+    	<input type="text" class="rotarySwitch" value="0"> 
+	</div>
+
+	<div style="float:right;width:45%;">
+   	  <label id="lblunit">Unit Selector</label>
+		<input type="text" class="rotarySwitchUnit" value="0">
+	</div>
+<div style="clear:both; font-size:1px;"></div>
+
+
+
+
+
+
+
+
+
+
+</div>
+
+  <button id="btn1" class="button" onclick="generatePair()" data-i18n="pair.generate1.presssingleprogram"></button>
+ 
+</center>
+
+
+
+
+<script>
+var tempdate =[];
+var unit =9;
+var channel =9;
+document.getElementById('btn1').addEventListener('click', function(){
+		
+
+		
+	});
+	
 	
 
+$(function() {
+   // $('.rotarySwitch').rotaryswitch({showMarks: true,themeClass: 'light'});
+   //$('.rotarySwitch2').rotaryswitch({showMarks: true,themeClass: 'light'});
+	
+	var rotarySwitch = $('.rotarySwitch').rotaryswitch({
+         beginDeg: 0,
+		 themeClass: 'light',
+		 snapInMotion: true,
+		 minimumOverMaximum: true,
+		 lengthDeg: 360,
+         minimum: 1,
+         maximum: 5,
+         step: 1,
+		 showInput: false,
+         showMarks: true
+    })
+	
+	var rotarySwitchUnit = $('.rotarySwitchUnit').rotaryswitch({
+         beginDeg: 0,
+		 themeClass: 'light',
+		 snapInMotion: true,
+		 minimumOverMaximum: true,
+		 lengthDeg: 360,
+         minimum: 1,
+         maximum: 5,
+         step: 1,
+		 showInput: false,
+         showMarks: true
+    })
+
+
+rotarySwitch.on('change', function() {
+	var rvalue = rotarySwitch.val();
+	var rtext = 9;
+	
+
+	switch(rvalue) {
+    case "1":
+		channel = 1;
+        rtext = 'Channel I';
+        break;
+    case "2":
+		channel = 2;
+        rtext = "Channel II";
+        break;
+	case "3":
+		channel = 3;
+        rtext = "Channel III";
+        break;
+	case "4":
+		channel = 4;
+        rtext = "Channel IV";
+        break;
+  	default: 
+        rtext = "Error";
+	}
+	
+	
+	document.getElementById('lblchannel').innerText = rtext;
+	
+	});
+
+rotarySwitchUnit.on('change', function() {
+	var rvalue = rotarySwitchUnit.val();
+	var rtext = 9;
+	
+	
+
+	switch(rvalue) {
+    case "1":
+		unit = 1;
+        rtext = 'Unit 1';
+        break;
+    case "2":
+		unit = 2;
+        rtext = "Unit 2";
+        break;
+	case "3":
+		unit = 3;
+        rtext = "Unit 3";
+        break;
+	case "4":
+		unit = 4;
+        rtext = "Unit 4";
+        break;
+  	default: 
+        rtext = "Error";
+	}
+	
+	
+	document.getElementById('lblunit').innerText = rtext;
+	
+	});
+});
+</script>
+
+<script>
+
+	
 	Homey.on('datasent', function() {
 		Homey.showView('generate2');
 	});
 	
 	function generatePair() {
-    	Homey.emit('imitate1', function() {
-	});
+		
+		tempdata = 
+				{
+				channel    	: channel,
+				unit   		: unit
+				}	
+		
+		console.log ('channel',channel);
+		console.log ('unit',unit);
+		console.log ('tempdata',tempdata);
+		
+		//Homey.emit('plugData', tempdata);	
+		
+		
+		
+		
+    	Homey.emit('imitate1', tempdata);
 }
 </script>
+
 
 <style type="text/css">
 	
 </style>
 
-<center>
-  <p><img src="../assets/images/large.png" width="400" height="500" alt=""/></p>
-  <p>
-  <button class="button" onclick="generatePair()" data-i18n="pair.generate1.presssingleprogram"></button>
-  </p>
-</center>
+
+
+
+
+
 
 
 

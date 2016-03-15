@@ -3,12 +3,12 @@
 
   "pair":{
     "title":{
-		"lw100_Remote": "Add a LightwaveRF remote…",
-		"lw107_PIR": "Add a LightwaveRF PIR Switch...",
+		"mp01_Remote": "Add a Maplin remote…",
+		"mp02": "Add a Maplin Socket...",
 		"lw200_Lightswitch": "Add a LightwaveRF wireless dimmer...",
 		"lw260_socket": "Add a LightwaveRF plug socket...",
 		"lw301_Lightswitch": "Add a LightwaveRF Plug in Dimmer...",
-		"lw321_Lightswitch": "Add a LightwaveRF Plug in...",
+		"lw321_Lightswitch": "Add a LightwaveRF Plug in on / off...",
 		"lw400_Lightswitch": "Add a LightwaveRF Wired Dimmer...",
 		"lw2101_Doorbell": "Add a LightwaveRF Doorbell Ringer...",
 		"lw2100_Doorbell": "Add a LightwaveRF Doorbell Pushbutton..."
@@ -28,8 +28,8 @@
   			"testIfWorking": "Use your remote or the switch above to test your device - will not be avaliable as there is no remote needs a button"
   		},
   		"generate1":{
-  			"pressprogram": "Press and hold both buttons on your device untill the blue and red leds start to blink",
-			"presssingleprogram": "Press and hold the button on your device untill the blue and amber led start to flash",
+  			"pressprogram": "Use the dials to select the correct channel and unit, then click here to continue",
+			"presssingleprogram": "Use the dials to select the correct channel and unit, then click here to continue",
 			"presson": "Press and hold both buttons on your device untill the blue and red leds start to blink"
   		},
   		"generate2":{
