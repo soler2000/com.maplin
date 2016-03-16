@@ -61,7 +61,7 @@
 				"small": "../drivers/mp02/assets/images/small.png"
 		    },
 		    "class": "scoket",
-		    "capabilities": [ "onoff" ],
+		    "capabilities": ["onoff"],
 	    "pair": [
 				{
 			    	"id": "start"

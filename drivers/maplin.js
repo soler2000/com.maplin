@@ -26,8 +26,35 @@ function createDriver(driver) {
 					
 					initFlag = 0;
 					var Signal = Homey.wireless('433').Signal;
-					var short =350;	//	14-15 samples at 48khz				
+					
+					
+					//manchester
+					signal = new Signal(
+                        {   
+                        sof: [], //Start of frame,
+                        eof: [1,1,1], //high,  End of frame,
+                        words: [
+                            [1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0],    	//Short Long Long SHort
+                            [1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0]		//Short, long, Short, Long
+                            ],
+                        manchesterUnit:     130,    // was 134 set to microsecond duration of single digit for manchester encoding
+                        manchesterMaxUnits: 12,      //maximal succeeding units without edges for manchester encoding
+                        interval: 13270,            //Time between repetitions,  this is the time between the a complete message and the start of the next
+                        repetitions: 8,                //basic remotes send the whole message 6 times, while the wifilink sends this 25 time
+                        sensitivity: 0.8, 
+                        minimalLength: 12,
+                        maximalLength: 12
+                        });
+					
+					
+	
+					
+					
+				/*	
+					var short =450;	//	14-15 samples at 48khz				
 					var long =1350;	//  14-15 samples at 48khz
+					
+
 					signal = new Signal(
 						{   
 						sof: [], //Start of frame,Starting 1 added to words due to some starting words beginning on a low
@@ -42,7 +69,7 @@ function createDriver(driver) {
 						minimalLength: 12,
                     	maximalLength: 12
 						});
-					
+					*/
 						
 						signal.register(function( err, success ){
 							if(err != null)
@@ -514,7 +541,7 @@ Homey.manager('flow').on('trigger.mp01remoteOff', function( callback, args ){
 
 function parseRXData(data) {
 
-console.log('RXdata Recieved');
+console.log('RXdata Recieved',data);
 	var valid = true;
 
 	if (data != undefined) {
@@ -577,7 +604,7 @@ console.log('RXdata Recieved');
 		}
 	
 		var onoff = false;
-		ß
+		
 		if(valid){
 			if (Command == 1){Command =0;}else{Command =1;}
 			console.log('Parse data Ch:', channel, 'unit:', unit, 'command:', Command);
@@ -596,6 +623,8 @@ console.log('RXdata Recieved');
 	
 		
 		}else{
+			
+			//getting triggerd alot
 			channel 	=0;
 			unit 	=0;
 			Command =0;		
