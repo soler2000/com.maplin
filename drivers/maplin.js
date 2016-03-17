@@ -11,6 +11,8 @@ var incomingtimeoutflag = true;
 var inmessageQ = [];
 var incomingQueTimer;
 var lastTXMessageID;
+var passedTest =0.00001;
+var failedTest =0.00001 ;
 
 function createDriver(driver) {
 	var self = 
@@ -38,10 +40,10 @@ function createDriver(driver) {
                             [1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0]		//Short, long, Short, Long
                             ],
                         manchesterUnit:     130,    // was 134 set to microsecond duration of single digit for manchester encoding
-                        manchesterMaxUnits: 12,      //maximal succeeding units without edges for manchester encoding
+                        manchesterMaxUnits: 12,     //maximal succeeding units without edges for manchester encoding
                         interval: 13270,            //Time between repetitions,  this is the time between the a complete message and the start of the next
-                        repetitions: 8,                //basic remotes send the whole message 6 times, while the wifilink sends this 25 time
-                        sensitivity: 0.8, 
+                        repetitions: 8,             //basic remotes send the whole message 8 times,
+                        sensitivity: 0.5, 
                         minimalLength: 12,
                         maximalLength: 12
                         });
@@ -620,17 +622,20 @@ console.log('RXdata Recieved',data);
 				onoff = false;
 			}
 	
-	
+	passedTest +=1;
 		
 		}else{
 			
 			//getting triggerd alot
+			failedTest +=1;
 			channel 	=0;
 			unit 	=0;
 			Command =0;		
 			onoff   = false;		
 		}
-		console.log('RXdata',channel, unit, Command);
+		var passrate = (passedTest / (passedTest +failedTest))*100;
+		passrate = passrate.toFixed(1) ;
+		console.log('RXdata',channel, unit, Command, passrate,'%');
 		return { 
 			channel 				: channel,
 			unit 				: unit,
