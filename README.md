@@ -11,7 +11,7 @@ This app supports Maplin RF Sockets commonly sold in thier shops,  this is also 
   
   You can also use the remote for other types of actions in flows.
     
- Supports  
+# Supports  
    
  http://www.maplin.co.uk/p/remote-controlled-mains-sockets-5-pack-n38hn
   
