@@ -43,7 +43,7 @@ function createDriver(driver) {
                         manchesterMaxUnits: 12,     //maximal succeeding units without edges for manchester encoding
                         interval: 13270,            //Time between repetitions,  this is the time between the a complete message and the start of the next
                         repetitions: 8,             //basic remotes send the whole message 8 times,
-                        sensitivity: 0.5, 
+                        sensitivity: 0.8, 
                         minimalLength: 12,
                         maximalLength: 12
                         });
@@ -181,8 +181,10 @@ function createDriver(driver) {
 			
 			//Testing of Remote
 			socket.on('test_device', function( data, callback ){
-				
-				signal.on('payload', function(payload, first){
+				 
+				signal.on('payload', function(payload, first){   
+					// not sure if this should be singlan once or on
+					console.log('Check coimments on test_device ',displayTime());
 					console.log('test device - payload recieved ',displayTime());
 					
 					if(!first)return;
@@ -375,10 +377,15 @@ function createDriver(driver) {
 
 
 function ManageIncomingRX(self, rxData){
+	
+	
+	//no ID in RS data,  will just process data anyway
 	var devices = getDeviceById(rxData);
-	if (devices != null){
+	
+	
+	//if (devices != null){
 					
-	  devices.forEach(function(device){
+//  devices.forEach(function(device){
 		  console.log('*****************Pay load received - Maplin****************');
 		  console.log(displayTime());
 		  console.log('New message:command', rxData.Command, 
@@ -386,13 +393,13 @@ function ManageIncomingRX(self, rxData){
 							  ' Cmd:', rxData.Command);
 	
 		  LastRX = rxData;	  
-		  updateDeviceOnOff(self, device, rxData.onoff);					
-		  flowselection(device, LastRX);
-		  lastTXMessageID = device.id;
+	//	  updateDeviceOnOff(self, device, rxData.onoff);					
+		  flowselection( LastRX);
+	//	  lastTXMessageID = device.id;
 		  //clears the last value after 2 seconds
-		  setTimeout(function(){lastTXMessageID =''; }, 2000); 
-	  });
-	}	
+	//	  setTimeout(function(){lastTXMessageID =''; }, 2000); 
+	//  });
+	//}	
 }
 
 
@@ -474,31 +481,24 @@ function sendOnOff(deviceIn, onoff) {
 
 ///Flow Section*************************************************************************************************************
 
-function flowselection(device,rxData){
-	console.log('Flow device Device', device);
+function flowselection(rxData){
+	
 	console.log('Flow device RX', rxData);
 	
-	switch(device.driver) {					
-		case 'mp01':
-			console.log('Flow Selection lw100');
-			console.log('Command', rxData.Command);
+	
+	console.log('Flow Selection lw100');
+	console.log('Command', rxData.Command);
 			
-			if (rxData.Command == 1){
-				console.log('Flow lw100 remoteOn');
-				Homey.manager('flow').trigger('mp01remoteOn');	
-				
-			}
-			if (rxData.Command == 0){
-				console.log('Flow lw100 remoteOff');
-				Homey.manager('flow').trigger('mp01remoteOff');	
-				
-			}
-		break;
-		
-											
-		default: 
-			
+	if (rxData.Command == 1){
+		console.log('Flow lw100 remoteOn');
+		Homey.manager('flow').trigger('mp01remoteOn');	
 	}
+	
+	if (rxData.Command == 0){
+		console.log('Flow lw100 remoteOff');
+		Homey.manager('flow').trigger('mp01remoteOff');				
+	}
+	
 }
 
 
