@@ -1,10 +1,9 @@
 # Homey App for Maplin RF Sockets
 
-
-# This app supports Maplin RF Sockets
+This app supports Maplin RF Sockets commonly sold in thier shops,  this is also made by a company called E-Gadget so may also control other devices using the same protocol.
  
 # Current Features  
-  Tuning on and off plugs and lamps  
+  Tuning on and off plug sockets.  
   
 # Usage
   Only need to add one remote as all the remotes send the same signal and do not have any specific address
