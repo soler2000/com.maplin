@@ -8,34 +8,31 @@
 
 
 <center>
-  <p><img src="../assets/images/large.png" width="300" height="300" alt=""/></p>
+  <p><img src="../assets/images/pair.png" width="500" height="250" alt=""/></p>
  
 
-<div>
-	<div style="float:left;width:45%;align="center";" >
-	  <label id="lblchannel">Channel Selector</label>
-    	<input type="text" class="rotarySwitch" value="0"> 
-	</div>
-
-	<div style="float:right;width:45%;">
-   	  <label id="lblunit">Unit Selector</label>
+<div align="center">
+		<p>
+	  		<label id="lblchannel">Channel Selector</label> 
+    		<input type="text" class="rotarySwitch" value="0"> 
+        </p>
+        <p>
+	  	<label id="lblunit">Unit Selector</label>
 		<input type="text" class="rotarySwitchUnit" value="0">
-	</div>
+		</p>
+        
+</div>
+  
+    
 <div style="clear:both; font-size:1px;"></div>
 
-
-
-
-
-
-
-
+  <button id="btn1" class="button" onclick="generatePair()" data-i18n="pair.generate1.presssingleprogram"></button>
+ 
 
 
 </div>
 
-  <button id="btn1" class="button" onclick="generatePair()" data-i18n="pair.generate1.presssingleprogram"></button>
- 
+
 </center>
 
 
@@ -58,7 +55,7 @@ $(function() {
    //$('.rotarySwitch2').rotaryswitch({showMarks: true,themeClass: 'light'});
 	
 	var rotarySwitch = $('.rotarySwitch').rotaryswitch({
-         beginDeg: 0,
+         beginDeg: 270,
 		 themeClass: 'light',
 		 snapInMotion: true,
 		 minimumOverMaximum: true,
@@ -71,7 +68,7 @@ $(function() {
     })
 	
 	var rotarySwitchUnit = $('.rotarySwitchUnit').rotaryswitch({
-         beginDeg: 0,
+         beginDeg: 270,
 		 themeClass: 'light',
 		 snapInMotion: true,
 		 minimumOverMaximum: true,
@@ -164,16 +161,19 @@ rotarySwitchUnit.on('change', function() {
 				unit   		: unit
 				}	
 		
-		console.log ('channel',channel);
-		console.log ('unit',unit);
 		console.log ('tempdata',tempdata);
 		
-		//Homey.emit('plugData', tempdata);	
+		
+		Homey.emit('imitate1', tempdata);
 		
 		
-		
+		if (channel ==9){
+			console.log ('Data not set');
+		}else
+		{
 		
     	Homey.emit('imitate1', tempdata);
+		}
 }
 </script>
 

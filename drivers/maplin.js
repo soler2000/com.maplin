@@ -48,31 +48,7 @@ function createDriver(driver) {
                         maximalLength: 12
                         });
 					
-					
 	
-					
-					
-				/*	
-					var short =450;	//	14-15 samples at 48khz				
-					var long =1350;	//  14-15 samples at 48khz
-					
-
-					signal = new Signal(
-						{   
-						sof: [], //Start of frame,Starting 1 added to words due to some starting words beginning on a low
-   						eof: [short], //  End of frame,Ending 1 added to words due to some ending words ending on a low
-						words: [
-							[short,long,long,short],
-							[short,long,short,long]
-							],
-						interval: 13500, 	//Time between repetitions,  this is the time between the a complete message and the start of the next
-						repetitions: 8, //number of transmission
-						sensitivity: 0.7, 
-						minimalLength: 12,
-                    	maximalLength: 12
-						});
-					*/
-						
 						signal.register(function( err, success ){
 							if(err != null)
 								{
@@ -121,33 +97,43 @@ function createDriver(driver) {
 							get: function( device_data, callback ) 
 								{
 									//console.log('capabilities get onoff');
-									var device = getDeviceById(device_data);
-									callback( null, device.onoff );
+									var devices = getDeviceByAddress(device_data);
+									devices.forEach(function(device){
+										//console.log('get',device );
+										//console.log('get',device.onoff );
+										callback( null, device.onoff );
+									});
 								},
+								
 							set: function( device_data, onoff, callback ) 
 								{
-									console.log('Setting device');
-									console.log('device In',device_data);
-									console.log('deviceList',deviceList);
-									var devices = getDeviceByAddress(device_data);
+									//console.log('Setting device');
+									//console.log('device In',device_data);
+									//console.log('deviceList',deviceList);
 									
-									console.log('devices Found', devices.length);
-									//gets the devices by driver,  and updated based on Channel and Unit
+									
+									
+									//gets the devices by  Channel and Unit
 									//This way all devices on the same channel get correctly updated
 									
 									
+									var devices = getDeviceByChannelandUnit(device_data);
 									
-									console.log('id', device_data.id);
+									//console.log('devices Found', device_data);
 									
-									//get devices by address resutrn 0
-									//get devices by ID reurns null
 									
+									//console.log('id', device_data.id);
 									
 									devices.forEach(function(device){
+										
+										sendOnOff(device_data, onoff);
 										updateDeviceOnOff(self, device, onoff);
+										
+										//console.log('set',device );
+										//console.log('set',device.onoff );
 									});	
 	
-									sendOnOff(device_data, onoff);
+									
 									callback( null, onoff );
 								}
 						}		
@@ -167,15 +153,15 @@ function createDriver(driver) {
 						}	
 					address = bitArrayToString(address);
 				
-									
+				//data send back from front end.					
 				tempdata = 
 					{
-					address: address,
+					address		: address,
 					channel    	: data.channel,
 					unit   		: data.unit,
 					onoff  		: true,
 					}	
-				//console.log('Data in Tempdata',tempdata);
+				console.log('Data from front end',tempdata);
 			
 				sendOnOff(tempdata, true);
 				socket.emit('datasent');
@@ -351,13 +337,13 @@ function createDriver(driver) {
 				{
 					console.log('emit Done at', displayTime());
 					var idNumber = Math.round(Math.random() * 0xFFFF);
-					var id = dec2bin(parseInt(tempdata.address,2));
+					var id = tempdata.address;
 					var name =  __(driver); //__() Is for translation
 					//console.log('adding device in socket on');
 					
 				
 					addDevice({
-						id       	: idNumber,
+						id       	: id,
 						address  	: tempdata.address,
 						channel   	: tempdata.channel,
 						unit   		: tempdata.unit,
@@ -416,6 +402,13 @@ function ManageIncomingRX(self, rxData){
 	}	
 }
 
+function getDeviceByChannelandUnit(deviceIn) {
+	var matches = deviceList.filter(function(d){
+		return	d.channel == deviceIn.channel && 
+				d.unit == deviceIn.unit;
+	});
+	return matches ? matches : null;
+}
 
 	
 function getDeviceById(deviceIn) {
@@ -492,7 +485,7 @@ function sendOnOff(deviceIn, onoff) {
 		
 	var dataToSend = createTXarray(deviceIn.channel, deviceIn.unit, command);
 	//console.log(dataToSend);
-	//var dataToSend = [deviceIn.channel, deviceIn.unit, command];
+	
 	var frame = new Buffer(dataToSend);
 	
 	console.log('Data to Send', dataToSend);
