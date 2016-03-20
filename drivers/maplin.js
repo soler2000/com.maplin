@@ -102,7 +102,7 @@ function createDriver(driver) {
 			//Refresh deviceList
 			devices.forEach(function(device)
 				{
-				console.log('Refresh Device List Driver:', device.driver);
+				console.log('Refresh Device List Driver:', device.driver, device.id);
 				addDevice(device);
 				});
 				callback();
@@ -126,9 +126,22 @@ function createDriver(driver) {
 								},
 							set: function( device_data, onoff, callback ) 
 								{
-									///console.log('Setting device');
-							
-									var devices = getDeviceByID(device_data);
+									console.log('Setting device');
+									console.log('device In',device_data);
+									console.log('deviceList',deviceList);
+									var devices = getDeviceByAddress(device_data);
+									
+									console.log('devices Found', devices.length);
+									//gets the devices by driver,  and updated based on Channel and Unit
+									//This way all devices on the same channel get correctly updated
+									
+									
+									
+									console.log('id', device_data.id);
+									
+									//get devices by address resutrn 0
+									//get devices by ID reurns null
+									
 									
 									devices.forEach(function(device){
 										updateDeviceOnOff(self, device, onoff);
@@ -338,13 +351,13 @@ function createDriver(driver) {
 				{
 					console.log('emit Done at', displayTime());
 					var idNumber = Math.round(Math.random() * 0xFFFF);
-					var id = tempdata.address;
+					var id = dec2bin(parseInt(tempdata.address,2));
 					var name =  __(driver); //__() Is for translation
 					//console.log('adding device in socket on');
 					
 				
 					addDevice({
-						id       	: id,
+						id       	: idNumber,
 						address  	: tempdata.address,
 						channel   	: tempdata.channel,
 						unit   		: tempdata.unit,
@@ -382,15 +395,16 @@ function ManageIncomingRX(self, rxData){
 	//no ID in RS data,  will just process data anyway
 	var devices = getDeviceById(rxData);
 	
+	if ((rxData.channel + rxData.unit + rxData.Command) !=0)
+	{
 	
-	//if (devices != null){
 					
 //  devices.forEach(function(device){
 		  console.log('*****************Pay load received - Maplin****************');
 		  console.log(displayTime());
-		  console.log('New message:command', rxData.Command, 
+		  console.log('New message:Channel', rxData.channel, 
 							  ' unit:',rxData.unit ,  
-							  ' Cmd:', rxData.Command);
+							  ' Command:', rxData.Command);
 	
 		  LastRX = rxData;	  
 	//	  updateDeviceOnOff(self, device, rxData.onoff);					
@@ -399,7 +413,7 @@ function ManageIncomingRX(self, rxData){
 		  //clears the last value after 2 seconds
 	//	  setTimeout(function(){lastTXMessageID =''; }, 2000); 
 	//  });
-	//}	
+	}	
 }
 
 
@@ -410,6 +424,14 @@ function getDeviceById(deviceIn) {
 	});
 	return matches ? matches[0] : null;
 }
+
+function getDeviceByDriver(deviceIn) {
+	var matches = deviceList.filter(function(d){
+		return d.driver == deviceIn.driver;
+	});
+	return matches ? matches[0] : null;
+}
+
 
 function getDeviceByAddress(deviceIn) {
 	var matches = deviceList.filter(function(d){
@@ -433,6 +455,7 @@ function addDevice(deviceIn) {
 	
 	deviceList.push({
 		id       			: deviceIn.id,
+		address				: deviceIn.address,
 		channel   			: deviceIn.channel,
 		unit   				: deviceIn.unit,
 		onoff    			: deviceIn.onoff,
@@ -455,18 +478,21 @@ function sendOnOff(deviceIn, onoff) {
 	if( onoff == false){
 		//send off
 		command =4;
-		//deviceIn.onoff = true; 
+		deviceIn.onoff = true; 
 	}
 	else if(onoff == true){
 		//send on
-		command =5;
-		//deviceIn.onoff = false;
+		command =1;
+		deviceIn.onoff = false;
 	}
 	
 	
-	
-	
-	var dataToSend = [deviceIn.channel, deviceIn.unit, command];
+
+		//add Para1
+		
+	var dataToSend = createTXarray(deviceIn.channel, deviceIn.unit, command);
+	//console.log(dataToSend);
+	//var dataToSend = [deviceIn.channel, deviceIn.unit, command];
 	var frame = new Buffer(dataToSend);
 	
 	console.log('Data to Send', dataToSend);
@@ -540,7 +566,56 @@ Homey.manager('flow').on('trigger.mp01remoteOff', function( callback, args ){
 
 
 //Receiver Section*************************************************************************************************************
+//Used as a look up array for the possible words transmitted by lightwaveRF
+var transcodes = [
+				 '0000',
+				 '1000',
+   	 			 '0100',
+   			 	 '0010',
+    			 '0001',
+    			 '1111']
+				 
+function createTXarray(channel, unit, command){
+	
+	
+	var txSignal =[];
+	
+	var str;
+	str = transcodes[parseInt(channel,10)];
+		//str = transcodes[0];
 
+	for (var i = 0, len = str.length; i < len; i++) {
+  		txSignal.push(str[i]);
+	}
+		
+	str = transcodes[parseInt(unit,10)];
+		//str = transcodes[0];
+
+	for (var i = 0, len = str.length; i < len; i++) {
+  		txSignal.push(str[i]);
+	}	
+	
+		
+	str = transcodes[parseInt(command,10)];
+		//str = transcodes[0];
+
+	for (var i = 0, len = str.length; i < len; i++) {
+  		txSignal.push(str[i]);
+	}	
+		
+//console.log(txSignal);
+
+return txSignal;
+}
+		
+		
+		
+		
+		
+
+				 
+				 
+				 
 function parseRXData(data) {
 
 console.log('RXdata Recieved',data);
@@ -610,8 +685,6 @@ console.log('RXdata Recieved',data);
 		if(valid){
 			if (Command == 1){Command =0;}else{Command =1;}
 			console.log('Parse data Ch:', channel, 'unit:', unit, 'command:', Command);
-		
-			
 		
 			if(Command == 1){
 				//Turn On

@@ -60,7 +60,7 @@
 				"large": "../drivers/mp02/assets/images/large.png",
 				"small": "../drivers/mp02/assets/images/small.png"
 		    },
-		    "class": "scoket",
+		    "class": "socket",
 		    "capabilities": ["onoff"],
 	    "pair": [
 				{
