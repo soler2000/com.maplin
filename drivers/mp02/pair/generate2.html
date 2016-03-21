@@ -38,6 +38,16 @@ body.on .onoff:before {
 
 
 <script type="text/javascript">
+	window.selected_devices = [ 'dummy' ];
+	window.found_devices = {
+	    'dummy': {
+	        name: 'Maplin Socket',
+	        data: {
+	            id: 'dummy'
+	        }
+	    }
+	}
+
 	Homey.emit('generate', function(err, onoff) { //Send signal
 	});	
 

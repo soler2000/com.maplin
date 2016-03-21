@@ -4,12 +4,10 @@
     "compatibility": "0.x || 1.x",
     "category": ["appliances", "lights"],
     "name": {
-        "en": "Maplin E-Gadget",
-		"nl": "Maplin E-Gadget"
+        "en": "Maplin E-Gadget"
     },
     "description": {
-		"en": "Give Homey the ability to control your Maplin E-Gadget devices",
-		"nl": "Give Homey the ability to control your Maplin E-Gadget devices"
+		"en": "Give Homey the ability to control your Maplin E-Gadget devices"
     },
     "author": {
         "name" : "Andy Wilde"
@@ -53,8 +51,8 @@
 		{
 		    "id": "mp02",
 		    "name": {
-				"en": "Plug-in On/Off",
-			    "nl": "Plug-in On/Off"
+				"en": "Maplin Socket",
+			    "nl": "Maplin Socket"
 		    },
 		    "images": {
 				"large": "../drivers/mp02/assets/images/large.png",
@@ -75,14 +73,21 @@
 			    {
 			    	"id": "generate2",
 			    	"navigation": {
-						"next": "done",
+						"next": "choose_slave",
 				    	"prev": "start"
 			    	}
-			    },
+			    },			
+				{
+					"id": "choose_slave",
+					"template": "choose_slave",
+					"navigation": {
+						"next": "done"
+					}
+				},
 				{
 			    	"id": "done"
 			    }
-		    ]
+		    	]
 		}
     ],
 	"flow": {
@@ -97,16 +102,16 @@
 	                    "name": "device",
 	                    "type": "device",
 	                    "filter": "driver_id=mp01",
-	                    "placeholder": { "en": "Which remote?", "nl": "Welke afstandbediening?" }
+	                    "placeholder": { "en": "Which remote?"}
 	                },
 	                {
 	                    "name": "channel",
 	                    "type": "dropdown",
 	                    "values": 	[ 
-		                    { "id": "1", "label": { "en": "Channel: a" } },
-		                    { "id": "2", "label": { "en": "Channel: b" } },
-		                    { "id": "3", "label": { "en": "Channel: c" } }, 
-		                    { "id": "4", "label": { "en": "Channel: d" } }  
+		                    { "id": "1", "label": { "en": "Channel: I" } },
+		                    { "id": "2", "label": { "en": "Channel: II" } },
+		                    { "id": "3", "label": { "en": "Channel: III" } }, 
+		                    { "id": "4", "label": { "en": "Channel: IV" } }  
 	                    ]
 	                },
 	                {
@@ -131,7 +136,7 @@
 	                    "name": "device",
 	                    "type": "device",
 	                    "filter": "driver_id=mp01",
-	                    "placeholder": { "en": "Which remote?", "nl": "Welke afstandbediening?" }
+	                    "placeholder": { "en": "Which remote?"}
 	                },
 	                {
 	                    "name": "channel",
